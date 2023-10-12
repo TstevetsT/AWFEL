@@ -8,10 +8,11 @@
 import pytesseract
 from PIL import Image
 # open the image file
-image = Image.open('image.png')
+image = Image.open('IMG-1809.PNG')
 
 # Perform OCR using pytesseract
 text = pytesseract.image_to_string(image)
+print(text)
 
 # -Use string/text to format the data
 # -Use Openpyxl to export data to worksheet for analysis
