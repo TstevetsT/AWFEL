@@ -9,6 +9,8 @@ import pytesseract
 from PIL import Image
 
 # open the image file
+# update this to take file inputs as command line arguments and process accordingly
+# suggest it be run like this:  python .\awfel.py 1908 1914
 i0 = Image.open('IMG-1908.PNG')
 i1 = Image.open('IMG-1909.PNG')
 i2 = Image.open('IMG-1910.PNG')
@@ -16,10 +18,13 @@ i3 = Image.open('IMG-1911.PNG')
 i4 = Image.open('IMG-1912.PNG')
 i5 = Image.open('IMG-1913.PNG')
 i6 = Image.open('IMG-1914.PNG')
+i7 = Image.open('IMG-1915.PNG')
+i8 = Image.open('IMG-1916.PNG')
+i9 = Image.open('IMG-1917.PNG')
 
 # Perform OCR using pytesseract
 # Need to edit this to auto import all files in folder
-text = pytesseract.image_to_string(i0) + pytesseract.image_to_string(i1) + pytesseract.image_to_string(i2) + pytesseract.image_to_string(i3) + pytesseract.image_to_string(i4) + pytesseract.image_to_string(i5) + pytesseract.image_to_string(i6)
+text = pytesseract.image_to_string(i0) + pytesseract.image_to_string(i1) + pytesseract.image_to_string(i2) + pytesseract.image_to_string(i3) + pytesseract.image_to_string(i4) + pytesseract.image_to_string(i5) + pytesseract.image_to_string(i6) + pytesseract.image_to_string(i7) + pytesseract.image_to_string(i8) + pytesseract.image_to_string(i9)
 
 print(text)
 
@@ -28,6 +33,8 @@ text1=""
 for char_val in text:
     text1=text1+char_val.strip("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklnopqrstuvwxyz.:[]/,=-")
 text=text1.split("\n")
+
+
 
 meters=25
 row_left=0
@@ -42,7 +49,7 @@ for i,line in enumerate(text,0):
     # future work: detect the meter increments and process automagically
     if line.find(str(meters)+"m") != -1:
         line=line.split(" ")
-        line[0]=str(meters/25)   # These three lines provide error correction
+        line[0]=str(int(meters/25))   # These three lines provide error correction
         line[1]=str(meters)+"m"
         if (len(line) > 2):
             line.pop(2)
@@ -55,16 +62,16 @@ for i,line in enumerate(text,0):
     # unnecessary row above each set of meter rows and the ocr sometimes interprets
     # the second num break as "' OR '' OR "
     # maybe try to just grab the first two numbers seperated by ' and ignore the rest
+    
+    #Need to add handling to id and ignore repeated data from previous pictures
+    
     elif line.find("\'") != -1:
         line = line[:1] +"\'"+line[2:] # This corrects OCR error where ' is read as a 1, but code will break if a lap takes more than 9 min
-        print(line)
         line=line.split("\'")
         # The line below multiplies min by 60 and sums with seconds
         line=int(line[0])*60+int(line[1][0]+line[1][1])
         if (row_right < row_left):
             table[row_right].append(line)
-            # table[row_right].append(line[0])
-            # table[row_right].append(line[1][0]+line[1][1])  # Ensures only first 2 chars 
             row_right += 1
 print(table)
 
