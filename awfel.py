@@ -5,27 +5,21 @@
 # pip install pytesseract
 # pip install pillow
 # Install tesseract engine from https://github.com/UB-Mannheim/tesseract/wiki
-import pytesseract
+import pytesseract # Used to OCR images
+import sys  # Used to read commandline arguments
 from PIL import Image
 
 # open the image file
 # update this to take file inputs as command line arguments and process accordingly
-# suggest it be run like this:  python .\awfel.py 1908 1914
-i0 = Image.open('IMG-1908.PNG')
-i1 = Image.open('IMG-1909.PNG')
-i2 = Image.open('IMG-1910.PNG')
-i3 = Image.open('IMG-1911.PNG')
-i4 = Image.open('IMG-1912.PNG')
-i5 = Image.open('IMG-1913.PNG')
-i6 = Image.open('IMG-1914.PNG')
-i7 = Image.open('IMG-1915.PNG')
-i8 = Image.open('IMG-1916.PNG')
-i9 = Image.open('IMG-1917.PNG')
-
-# Perform OCR using pytesseract
-# Need to edit this to auto import all files in folder
-text = pytesseract.image_to_string(i0) + pytesseract.image_to_string(i1) + pytesseract.image_to_string(i2) + pytesseract.image_to_string(i3) + pytesseract.image_to_string(i4) + pytesseract.image_to_string(i5) + pytesseract.image_to_string(i6) + pytesseract.image_to_string(i7) + pytesseract.image_to_string(i8) + pytesseract.image_to_string(i9)
-
+# suggest it be run like this:  python .\awfel.py <first image num> <last image num>
+# input_file_count=int(sys.argv[2])-int(sys.argv[1])+1
+# print(sys.argv[1]+" "+sys.argv[2]+" "+str(input_file_count))
+text=""
+for i in range(int(sys.argv[1]),int(sys.argv[2])+1):
+    in_filename="IMG-"+str(i)+".PNG"
+    # Perform OCR using pytesseract after opening file
+    text = text + pytesseract.image_to_string(Image.open(in_filename))
+    
 print(text)
 
 #  This will remove all the undesired characters
@@ -49,8 +43,10 @@ for i,line in enumerate(text,0):
     # future work: detect the meter increments and process automagically
     if line.find(str(meters)+"m") != -1:
         line=line.split(" ")
-        line[0]=str(int(meters/25))   # These three lines provide error correction
-        line[1]=str(meters)+"m"
+        line_num=int(meters/25)
+        total_meters=str(meters)+"m"
+        line[0]=str(line_num)   # These three lines provide error correction
+        line[1]=total_meters
         if (len(line) > 2):
             line.pop(2)
         table.append(line)
@@ -63,7 +59,9 @@ for i,line in enumerate(text,0):
     # the second num break as "' OR '' OR "
     # maybe try to just grab the first two numbers seperated by ' and ignore the rest
     
-    #Need to add handling to id and ignore repeated data from previous pictures
+    # Need to add handling to id and ignore repeated data from previous pictures
+    # Idea:  In the if above check if input row number matches expected OR if input
+    #        meters matches expected.  If this validation fails, decrement 
     
     elif line.find("\'") != -1:
         line = line[:1] +"\'"+line[2:] # This corrects OCR error where ' is read as a 1, but code will break if a lap takes more than 9 min
