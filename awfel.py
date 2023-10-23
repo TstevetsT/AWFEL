@@ -28,14 +28,14 @@ for char_val in text:
     text1=text1+char_val.strip("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklnopqrstuvwxyz.:[]/,=-")
 text=text1.split("\n")
 
-
-
 meters=25
 row_left=0
 row_right=0
 table=[]
 newline=""
 text5=""
+prev_line_num=0
+dups = 0
 for i,line in enumerate(text,0):
     # This section of code will grab all the lines containing a line number and 
     # multiple of 25m and write them as the first two columns in a list of lists
@@ -43,15 +43,52 @@ for i,line in enumerate(text,0):
     # future work: detect the meter increments and process automagically
     if line.find(str(meters)+"m") != -1:
         line=line.split(" ")
-        line_num=int(meters/25)
+        line_num=int(meters/25)   # These three lines provide error correction
         total_meters=str(meters)+"m"
-        line[0]=str(line_num)   # These three lines provide error correction
+        line[0]=str(line_num)   
         line[1]=total_meters
         if (len(line) > 2):
             line.pop(2)
-        table.append(line)
+        table.append(line)             
         meters += 25
         row_left += 1
+        prev_line_num=int(line[0])
+    # Was trying to use the below section to error correct an OCR read where it reads the following: 
+            # 131 3,275m
+            # 132 3,300m
+            # (See > 2 oni    these errors make the above code miss this
+            # 134 3,350m
+            # JSS) SSSI       and this line
+            # 136 3,400m
+            # 137 3,425m
+    # elif line.find(str(meters+25)+"m") != -1:
+    #     line=line.split(" ")
+    #     line_num=int(meters/25)   # These three lines provide error correction
+    #     total_meters=str(meters)+"m"
+    #     line[0]=str(line_num)   
+    #     line[1]=total_meters
+    #     if (len(line) > 2):
+    #         line.pop(2)
+    #     table.append(line)             
+    #     meters += 25
+    #     row_left += 1
+    #     prev_line_num=int(line[0])
+    #     line_num=int(meters/25)   # These three lines provide error correction
+    #     total_meters=str(meters)+"m"
+    #     line[0]=str(line_num)   
+    #     line[1]=total_meters
+    #     if (len(line) > 2):
+    #         line.pop(2)
+    #     table.append(line)             
+    #     meters += 25
+    #     row_left += 1
+    #     prev_line_num=int(line[0])
+    #     row_right += 1
+    #     dups -= 1
+    elif line.find("m") != -1:
+        row_right -= 1
+        dups += 1
+            
     # This section of code grabs all the lines containing ' to get the time rows
     # Now I need to figure out how to parse out the extra rows and seperate the
     # minutes and seconds into seperate columns it is tricky because there is an 
@@ -63,14 +100,23 @@ for i,line in enumerate(text,0):
     # Idea:  In the if above check if input row number matches expected OR if input
     #        meters matches expected.  If this validation fails, decrement 
     
-    elif line.find("\'") != -1:
+    elif ((row_right < row_left) and (line.find("\'") != -1)):
+        if line[0] == "\'":
+            print(line)
+            line="0"+line
+            print(line)
         line = line[:1] +"\'"+line[2:] # This corrects OCR error where ' is read as a 1, but code will break if a lap takes more than 9 min
         line=line.split("\'")
         # The line below multiplies min by 60 and sums with seconds
+        # print(line[0]+"     "+line[1][0]+"     "+line[1][1])
         line=int(line[0])*60+int(line[1][0]+line[1][1])
-        if (row_right < row_left):
+        if ((row_right < row_left) and (dups == 0)):
             table[row_right].append(line)
             row_right += 1
+        else:
+            dups -= 1
+            row_right += 1
+        print(str(row_right)+" < "+str(row_left)+"    "+str(line)+"  "+str(dups))
 print(table)
 
 
