@@ -13,7 +13,7 @@ for i in range(int(sys.argv[1]),int(sys.argv[2])+1):
 print(result)
 
 # Writing to file
-out_file=sys.argv[1]+"out"
-with open(out_file, "w") as file1:
-    # Writing data to a file
-    file1.writelines(result)
+out_file=sys.argv[1]+"out"  
+with open(out_file, 'w') as f:
+    for line in result:
+        f.write(f"{line}\n")
