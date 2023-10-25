@@ -1,6 +1,6 @@
-# This is a fire and forget batch processor that will run multiple python scripts
+# This is a fire and forget batch processor that will run multiple python scripts listed in the commands table with the arguments following commands
 
-# import subprocess
+import subprocess
 
 # Define a list of commands to execute
 commands = [
