@@ -11,3 +11,9 @@ for i in range(int(sys.argv[1]),int(sys.argv[2])+1):
     result = result + reader.readtext(in_filename, detail = 0)
     print(in_filename+" import complete")
 print(result)
+
+# Writing to file
+out_file=sys.argv[1]+"out"
+with open(out_file, "w") as file1:
+    # Writing data to a file
+    file1.writelines(result)
